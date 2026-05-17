@@ -25,7 +25,7 @@
 
 ---
 
-## 功能
+## ✨ 功能一览
 
 | | |
 | :--- | :--- |
@@ -42,59 +42,93 @@
 
 ---
 
-## 下载
+## 💻 下载安装
 
-| 平台 | 下载 |
-| ---- | ---- |
-| Windows x64 | [PawFocus_0.1.0_x64-setup.exe](../../releases/latest) |
+| 平台 | 安装包 |
+| :--- | :--- |
+| 🪟 Windows x64 | [PawFocus_0.1.0_x64-setup.exe](../../releases/latest) |
 
-完整安装包请在 [Releases](../../releases) 页面获取最新版本。
+更多版本请在 [Releases](../../releases) 页面获取。
 
 ---
 
-## 开发
+## 🛠️ 开发指南
 
 ### 环境要求
 
-- Node.js 18+
-- Rust
+- [Node.js](https://nodejs.org/) 18+
+- [Rust](https://www.rust-lang.org/)
 
-### 安装依赖
+### 常用命令
 
 ```bash
+# 安装依赖
 npm install
-```
 
-### 开发模式
-
-```bash
+# 开发模式
 npm run tauri dev
-```
 
-### 构建
-
-```bash
+# 构建安装包
 npm run tauri build
 ```
 
-构建后的安装包位于 `src-tauri/target/release/bundle/nsis/`。
+构建产物位于 `src-tauri/target/release/bundle/nsis/`。
 
 ---
 
-## 技术栈
+## 🧩 技术栈
 
 | 领域 | 技术 |
-| ---- | ---- |
-| 前端框架 | Vue 3 + Composition API |
-| 语言 | TypeScript |
-| 构建工具 | Vite |
-| 桌面端 | Tauri v1 (Rust) |
-| 状态管理 | Pinia |
+| :--- | :--- |
+| 前端框架 | [Vue 3](https://vuejs.org/) + Composition API |
+| 语言 | [TypeScript](https://www.typescriptlang.org/) |
+| 构建工具 | [Vite](https://vitejs.dev/) |
+| 桌面端 | [Tauri v1](https://tauri.app/) (Rust) |
+| 状态管理 | [Pinia](https://pinia.vuejs.org/) |
 | 样式 | CSS Variables |
 | 图标 | 手绘像素风格 SVG |
 
 ---
 
-## License
+## 🙏 致谢
 
-[MIT](LICENSE)
+PawFocus 基于以下优秀的开源项目构建：
+
+| 项目 | 许可 | 用途 |
+| :--- | :--- | :--- |
+| [Vue.js](https://github.com/vuejs/core) | MIT | 响应式前端框架 |
+| [Tauri](https://github.com/tauri-apps/tauri) | Apache-2.0 / MIT | 跨平台桌面应用框架 |
+| [Vite](https://github.com/vitejs/vite) | MIT | 下一代前端构建工具 |
+| [Pinia](https://github.com/vuejs/pinia) | MIT | Vue 状态管理方案 |
+
+感谢所有开源贡献者 💛
+
+---
+
+## 📜 许可
+
+```text
+MIT License
+
+Copyright (c) 2025 PawFocus Contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+完整许可文本见 [LICENSE](LICENSE) 文件。
