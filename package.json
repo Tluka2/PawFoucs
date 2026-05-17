@@ -1,0 +1,30 @@
+{
+  "name": "learning-companion",
+  "version": "0.1.0",
+  "description": "桌面陪伴式学习助手",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc && vite build",
+    "preview": "vite preview",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^1.5.3",
+    "idb": "^8.0.3",
+    "pinia": "^2.1.7",
+    "vue": "^3.4.21"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.2.2",
+    "@tauri-apps/cli": "^1.5.10",
+    "@vitejs/plugin-vue": "^5.0.4",
+    "autoprefixer": "^10.5.0",
+    "fake-indexeddb": "^6.2.5",
+    "postcss": "^8.5.10",
+    "tailwindcss": "^4.2.2",
+    "typescript": "^5.3.3",
+    "vite": "^5.2.0",
+    "vue-tsc": "^2.0.6"
+  }
+}

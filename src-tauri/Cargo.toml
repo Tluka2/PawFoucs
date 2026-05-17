@@ -1,0 +1,20 @@
+[package]
+name = "learning-companion"
+version = "0.1.0"
+description = "PawFocus-学习伙伴"
+authors = ["you"]
+license = ""
+repository = ""
+edition = "2021"
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]
+
+[build-dependencies]
+tauri-build = { version = "1.5", features = [] }
+
+[dependencies]
+tauri = { version = "1.5", features = [ "process-exit", "window-set-focus", "window-set-size", "window-set-always-on-top", "window-hide", "window-unminimize", "window-set-position", "window-show", "window-close", "window-unmaximize", "window-minimize", "window-start-dragging", "window-maximize", "shell-open", "system-tray"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"

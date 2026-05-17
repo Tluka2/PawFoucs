@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Nunito', 'Microsoft YaHei', sans-serif;
+    background: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+  }
+  #timer-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 4px 10px;
+    width: 100%;
+    height: 100%;
+    border: 1.5px solid rgba(242, 158, 109, 0.4);
+    border-radius: 10px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    cursor: default;
+    transition: background 0.8s ease, border-color 0.3s, box-shadow 0.3s;
+  }
+  /* Time-of-day backgrounds — lighter tinted versions of main app */
+  #timer-container.period-morning {
+    background: linear-gradient(135deg, #E8F3FC, #FFF8E8, #FFF5EB);
+  }
+  #timer-container.period-afternoon {
+    background: linear-gradient(135deg, #D6EFF9, #E8F5FC, #F2F9FE);
+  }
+  #timer-container.period-evening {
+    background: linear-gradient(135deg, #FFDCC8, #FFE4D4, #F5E4F5);
+  }
+  #timer-container.period-night {
+    background: linear-gradient(135deg, #1C3A5E, #22223A, #1A2840);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+  /* Night mode text colors */
+  #timer-container.period-night .timer-time { color: #FFD4A8; }
+  #timer-container.period-night .timer-label { color: rgba(255,255,255,0.5); }
+  #timer-container.period-night .timer-idle { color: rgba(255,255,255,0.4); }
+  /* Claim reward state */
+  #timer-container.claimable {
+    background: linear-gradient(135deg, #FFE4C9, #FFD1DC) !important;
+    border: 1.5px solid rgba(242, 158, 109, 0.3);
+    cursor: pointer;
+    box-shadow: 0 2px 12px rgba(242, 158, 109, 0.2);
+  }
+  #timer-container.claimable:active {
+    transform: scale(0.96);
+  }
+  .timer-icon { font-size: 14px; line-height: 1; display: flex; align-items: center; justify-content: center; }
+.timer-icon svg { width: 14px; height: 14px; display: block; }
+  .timer-label { font-size: 9px; color: #B0A090; font-weight: 600; }
+  .timer-time {
+    font-size: 22px;
+    font-weight: 850;
+    color: #D87A3E;
+    line-height: 1;
+    letter-spacing: 1px;
+  }
+  .timer-idle { color: #B0A090; }
+  .timer-running { color: #D87A3E; }
+  .timer-break { color: #7EC8A0; }
+  .timer-completed { color: #8B4513; }
+  #timer-container.claimable .timer-time { color: #8B4513; }
+  #timer-container.claimable .timer-label { color: #8B4513; }
+</style>
+</head>
+<body>
+<div id="timer-container" data-tauri-drag-region>
+  <span id="icon" class="timer-icon">🍅</span>
+  <span id="time" class="timer-time timer-idle">--:--</span>
+  <span id="label" class="timer-label"></span>
+</div>
+<script>
+  const elContainer = document.getElementById('timer-container')
+  const elTime = document.getElementById('time')
+  const elLabel = document.getElementById('label')
+  const elIcon = document.getElementById('icon')
+  let tauriReady = false
+  let currentPeriod = null
+  let currentPetType = 'dog'
+
+  // Pixel-art SVG icons (inline)
+  const SVGS = {
+    tomatoDog: `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 16 16" shape-rendering="crispEdges">
+      <circle cx="8" cy="9" r="5" fill="#E8956A" stroke="#D67A4E" stroke-width="1"/>
+      <path d="M6 5 L8 2 L10 5" fill="none" stroke="#7BC67E" stroke-width="1.5" stroke-linecap="round"/>
+      <rect x="10" y="1" width="3" height="3" fill="#FFD93D" stroke="#E8B84D" stroke-width="0.5"/>
+    </svg>`,
+    tomatoCat: `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 16 16" shape-rendering="crispEdges">
+      <circle cx="8" cy="9" r="5" fill="#E8956A" stroke="#D67A4E" stroke-width="1"/>
+      <path d="M6 5 L8 2 L10 5" fill="none" stroke="#7BC67E" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M10 5 L10 1 L13 5 Z" fill="#333333"/>
+      <path d="M10.5 4.5 L11 2.5 L12 4.5 Z" fill="#E898A8"/>
+    </svg>`,
+    coffee: `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 16 16" shape-rendering="crispEdges">
+      <!-- 蒸汽 -->
+      <path d="M6 1 C6 2 7 2 7 3 C7 4 6 4 6 5" fill="none" stroke="#C0A080" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
+      <path d="M8 0 C8 1.5 9 1.5 9 3 C9 4.5 8 4.5 8 6" fill="none" stroke="#C0A080" stroke-width="1" stroke-linecap="round" opacity="0.5"/>
+      <path d="M10 1 C10 2 11 2 11 3 C11 4 10 4 10 5" fill="none" stroke="#C0A080" stroke-width="1" stroke-linecap="round" opacity="0.4"/>
+      <!-- 杯盖 -->
+      <rect x="3" y="4" width="10" height="2" rx="1" fill="#E8C9A0" stroke="#B08050" stroke-width="1"/>
+      <!-- 杯身 -->
+      <rect x="4" y="6" width="8" height="7" rx="1" fill="#F5E0C8" stroke="#B08050" stroke-width="1"/>
+      <!-- 咖啡液面 -->
+      <rect x="5" y="7" width="6" height="1" fill="#A07050" opacity="0.5"/>
+      <!-- 杯柄 -->
+      <path d="M12 8 C14.5 8 14.5 11 12 11" fill="none" stroke="#B08050" stroke-width="1.5" stroke-linecap="round"/>
+      <!-- 高光 -->
+      <rect x="5" y="9" width="1" height="2" fill="#FFFFFF" opacity="0.4"/>
+    </svg>`,
+    pause: `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 16 16" shape-rendering="crispEdges">
+      <rect x="5" y="4" width="2" height="8" fill="#999"/>
+      <rect x="9" y="4" width="2" height="8" fill="#999"/>
+    </svg>`,
+    gift: `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 16 16" shape-rendering="crispEdges">
+      <!-- 宝箱底部阴影 -->
+      <rect x="2" y="12" width="12" height="2" rx="1" fill="#8B6914" opacity="0.3"/>
+      <!-- 箱体主体（木质） -->
+      <rect x="2" y="6" width="12" height="6" rx="1" fill="#C4956A" stroke="#8B6914" stroke-width="1"/>
+      <!-- 箱盖（拱形） -->
+      <path d="M2 6 C2 3 5 2 8 2 C11 2 14 3 14 6" fill="#D4A050" stroke="#8B6914" stroke-width="1"/>
+      <!-- 盖子顶部边缘 -->
+      <path d="M2 6 L14 6" stroke="#8B6914" stroke-width="1"/>
+      <!-- 金色竖条带子 -->
+      <rect x="7" y="2" width="2" height="10" fill="#E8B84D" opacity="0.9"/>
+      <!-- 箱体金属包边 - 左右 -->
+      <rect x="2" y="6" width="1" height="6" fill="#E8B84D" opacity="0.7"/>
+      <rect x="13" y="6" width="1" height="6" fill="#E8B84D" opacity="0.7"/>
+      <!-- 锁扣 -->
+      <rect x="6.5" y="9" width="3" height="2.5" rx="0.5" fill="#FFD93D" stroke="#B8860B" stroke-width="0.5"/>
+      <circle cx="8" cy="10.5" r="0.8" fill="#B8860B"/>
+      <!-- 锁扣高光 -->
+      <rect x="7" y="9.5" width="1" height="1" fill="#FFF" opacity="0.5"/>
+      <!-- 箱盖上的金属角 -->
+      <rect x="2" y="6" width="2" height="1" fill="#E8B84D" opacity="0.8"/>
+      <rect x="12" y="6" width="2" height="1" fill="#E8B84D" opacity="0.8"/>
+      <!-- 箱体铆钉 -->
+      <circle cx="3.5" cy="8" r="0.4" fill="#FFD93D"/>
+      <circle cx="3.5" cy="10.5" r="0.4" fill="#FFD93D"/>
+      <circle cx="12.5" cy="8" r="0.4" fill="#FFD93D"/>
+      <circle cx="12.5" cy="10.5" r="0.4" fill="#FFD93D"/>
+    </svg>`,
+  }
+
+  function getTomatoSvg() {
+    return currentPetType === 'cat' ? SVGS.tomatoCat : SVGS.tomatoDog
+  }
+
+  function update(data) {
+    const { time, state, label, period, petType } = data
+
+    if (petType) currentPetType = petType
+
+    // Update time-of-day background
+    if (period && period !== currentPeriod) {
+      elContainer.classList.remove('period-morning', 'period-afternoon', 'period-evening', 'period-night')
+      elContainer.classList.add('period-' + period)
+      currentPeriod = period
+    }
+
+    elContainer.classList.remove('claimable')
+    elContainer.removeAttribute('data-tauri-drag-region')
+
+    if (state === 'completed') {
+      elTime.textContent = time || '✓'
+      elTime.className = 'timer-time timer-completed'
+      elLabel.textContent = '点击领取'
+      elIcon.innerHTML = SVGS.gift
+      elContainer.classList.add('claimable')
+    } else {
+      elTime.textContent = time || '--:--'
+      elTime.className = 'timer-time'
+      elLabel.textContent = label || ''
+      elContainer.setAttribute('data-tauri-drag-region', '')
+
+      if (state === 'running') { elTime.classList.add('timer-running'); elIcon.innerHTML = getTomatoSvg() }
+      else if (state === 'break') { elTime.classList.add('timer-break'); elIcon.innerHTML = SVGS.coffee }
+      else if (state === 'paused') { elTime.classList.add('timer-idle'); elIcon.innerHTML = SVGS.pause; elLabel.textContent = '已暂停' }
+      else { elTime.classList.add('timer-idle'); elIcon.innerHTML = getTomatoSvg() }
+    }
+  }
+
+  function claimReward() {
+    if (!tauriReady) return
+    window.__TAURI__.event.emit('mini-claim-reward', {})
+  }
+
+  elContainer.addEventListener('click', function (e) {
+    if (elContainer.classList.contains('claimable')) {
+      e.preventDefault()
+      e.stopPropagation()
+      claimReward()
+    }
+  })
+
+  function setupListener() {
+    var tauri = window.__TAURI__
+    if (!tauri || !tauri.event) { setTimeout(setupListener, 200); return }
+
+    tauriReady = true
+    tauri.event.listen('timer-update', function (evt) {
+      update(evt.payload)
+    })
+  }
+
+  setupListener()
+
+  // Initial placeholder — use local time to pick period
+  var h = new Date().getHours()
+  var p = h >= 6 && h < 11 ? 'morning' : h >= 11 && h < 17 ? 'afternoon' : h >= 17 && h < 21 ? 'evening' : 'night'
+  update({ time: '--:--', state: 'idle', label: '', period: p })
+</script>
+</body>
+</html>
