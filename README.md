@@ -114,6 +114,14 @@ PawFocus 基于以下优秀的开源项目构建：
 
 ---
 
+## 👤 关于作者
+
+- GitHub: [@Tluka2](https://github.com/Tluka2)
+
+如有问题或建议，欢迎通过 GitHub Issues 反馈。
+
+---
+
 ## 📜 许可
 
 ```text
