@@ -50,6 +50,15 @@
 
 更多版本请在 [Releases](../../releases) 页面获取。
 
+### 平台支持
+
+| 平台 | 状态 | 说明 |
+| :--- | :--- | :--- |
+| 🪟 Windows x64 | ✅ 可用 | 提供 NSIS 安装包，下载即用 |
+| 🐧 Linux | ⚠️ 需自行构建 | 已配置 `deb` + `appimage` 目标，需在 Linux 环境（或 WSL）下运行 `npm run tauri build` |
+| 🍎 macOS | ❌ 暂不支持 | 需 Mac 电脑进行构建和签名，目前无可用环境 |
+| 📱 iOS / Android | ❌ 不支持 | 基于 Tauri v1 桌面框架，暂无移动端计划 |
+
 ---
 
 ## 🛠️ 开发指南
